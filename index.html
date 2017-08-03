@@ -1,0 +1,86 @@
+<!DOCTYPE HTML>
+<html lang=zh-CN>
+<head>
+<title>字符串编解码工具</title>
+<meta charset=UTF-8>
+<!--[if (lt IE 8.0)]>
+<link rel=stylesheet href=fe-endecode.css><![endif]-->
+<!--[if (!IE)|(gte IE 8.0)]>
+<!-->
+<link rel=stylesheet href=fe-endecode_datauri.css>
+<!--<![endif]-->
+<script src=jquery-1.5.min.js></script>
+<script src=mod_endecode.js></script>
+<script src=jsfuck.js></script>
+<script src=morse.js></script>
+<script src=vbs.js></script>
+<script src=kimoji.js></script>
+<script src=brainfuck.js></script>
+</head>
+<body>
+<div class="mod-endecode -e-x-container">
+    <fieldset>
+        <legend>对字符串进行各种编解码操作</legend>
+        <div class="x-input">
+            <textarea class="-e-zxl-ta-src" id="srcText" placeholder="在这里粘贴您需要进行编码转换的字符串"></textarea>
+        </div>
+        <div class="-e-x-btn">
+        <span class="-e-x-radio">
+        <input type="radio" name="codeType" id="uniEncode" checked="checked">
+        <label for="uniEncode">Unicode编码</label>
+        <input type="radio" name="codeType" id="uniDecode">
+        <label for="uniDecode">Unicode解码</label>
+        <input type="radio" name="codeType" id="utf8Encode">
+        <label for="utf8Encode">URL编码</label>
+        <input type="radio" name="codeType" id="utf8Decode">
+        <label for="utf8Decode">URL解码</label>
+        <input type="radio" name="codeType" id="base64Encode">
+        <label for="base64Encode">base64编码</label>
+        <input type="radio" name="codeType" id="base64Decode">
+        <label for="base64Decode">base64解码</label>
+        <input type="radio" name="codeType" id="ten_Encode">
+        <label for="ten_Encode">10进制编码</label>
+        <input type="radio" name="codeType" id="ten_Decode">
+        <label for="ten_Decode">10进制解码</label>
+        <br>
+        <input type="radio" name="codeType" id="morse_Encode">
+        <label for="morse_Encode">摩尔编码</label>
+        <input type="radio" name="codeType" id="morse_Decode">
+        <label for="morse_Decode">摩尔解码</label>
+        <input type="radio" name="codeType" id="base32Encode">
+        <label for="base32Encode">base32编码</label>
+        <input type="radio" name="codeType" id="base32Decode">
+        <label for="base32Decode">base32解码</label>
+        <input type="radio" name="codeType" id="eval_jsfuck">
+        <label for="eval_jsfuck">eval(jsfuck)</label>
+        <input type="radio" name="codeType" id="jsfuck">
+        <label for="jsfuck">jsfuck</label>
+        <input type="radio" name="codeType" id="unicode_Encode_full">
+        <label for="unicode_Encode_full">Unicode编码(全)</label>
+        <input type="radio" name="codeType" id="url_Encode_full">
+        <label for="url_Encode_full">URL编码(全)</label>
+        <br>
+        <input type="radio" name="codeType" id="detection">
+        <label for="detection">检测</label>
+        <input type="radio" name="codeType" id="md5Encode">
+        <label for="md5Encode">md5编码</label>
+        <input type="radio" name="codeType" id="vbsEncode">
+        <label for="vbsEncode"> VBScript编码</label>
+        <input type="radio" name="codeType" id="vbsDecode">
+        <label for="vbsDecode"> VBScript解码</label>
+        <input type="radio" name="codeType" id="kimojiEncode">
+        <label for="kimojiEncode">kimoji编码</label>
+        <input type="radio" name="codeType" id="brainfuckEncode">
+        <label for="brainfuckEncode">brainfuck编码</label>
+        <input type="radio" name="codeType" id="brainfuckDecode">
+        <label for="brainfuckDencode">brainfuck解码</label>
+        </span>
+            <input id="btnCodeClear" class="-e-btn -e-clear-btn" type="button" value="清空">
+            <input id="btnCodeChange" class="-e-btn" type="button" value="转换">
+        </div>
+    </fieldset>
+    <div id="rst" class="x-input -e-x-rst">
+        <textarea class="zxl-ta-rst" id="rstCode" cols="" rows=""></textarea>
+    </div>
+</div>
+</div>
