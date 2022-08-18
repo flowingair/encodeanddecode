@@ -729,10 +729,10 @@ baidu.ed = (function () {
                                 g.val(baidu.endecode.utf8Decode(baidu.endecode.base64Decode(f)))
 								} else {
 								if (jQuery("#ten_Encode").attr("checked") == true) {
-									g.val(ten_Encode(f))
+									g.val(OCTEncode(f))
 									} else {
 									if (jQuery("#ten_Decode").attr("checked") == true) {
-										g.val(ten_Decode(f))
+										g.val(OCTDecode(f))
 										} else {
 										if (jQuery("#eval_jsfuck").attr("checked") == true) {
 											g.val(eval_jsfuck(f))
