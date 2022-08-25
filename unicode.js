@@ -2,9 +2,9 @@ function unicode_encode_full(input) {
     var output = "";
     for (var i = 0; i < input.length; i++) {
         if (input[i].match(/([0-9A-z])/gi)) {
-            output += "\\u00" + input.charCodeAt(i).toString(16).toUpperCase();
+            output = output + "\\u00" + input.charCodeAt(i).toString(16).toUpperCase();
         } else {
-            output += "\\u" + input.charCodeAt(i).toString(16).toUpperCase();
+            output = output + "\\u" + input.charCodeAt(i).toString(16).toUpperCase();
         }
     }
     return output;
@@ -14,15 +14,15 @@ function unicode_encode(input) {
     var output = "";
     for (var i = 0; i < input.length; i++) {
         if (input[i].match(/([0-9A-z])/gi)) {
-            // output += "\\u00" + input.charCodeAt(i).toString(16).toUpperCase();
+            output = output + input[i];
         } else {
-            output += "\\u" + input.charCodeAt(i).toString(16).toUpperCase();
+            output = output + "\\u" + input.charCodeAt(i).toString(16).toUpperCase();
         }
     }
     return output;
 }
 
-function uicode_decode_old(input) {
+function uicode_decode_old(n) {
     n = n.replace(/\\/g, "%").replace("%u0025", "%25");
     n = unescape(n.toString().replace(/%2B/g, "+"));
     var l = n.match(/(%u00([0-9A-F]{2}))/gi);
@@ -39,35 +39,41 @@ function uicode_decode_old(input) {
     return n
 }
 
+function format(input) {
+    let output = input.toString(16);
+    if (1 == output.length) {
+        return "%0" + output;
+    }
+    return "%" + output;
+}
+
 function octal(input) {
     if (input.match(/[0-7]/gi)) {
         let output = parseInt(input, 8);
-        output = String.fromCharCode(output);
-        return output;
+        return format(output);
     } else {
-        return "\\" + input;
+        return encodeURIComponent("\\" + input);
     }
 }
 
 function hexadecimal(input) {
     if (input.match(/[0-9A-Fa-f]/gi)) {
         let output = parseInt(input, 16);
-        output = String.fromCharCode(output);
-        return output;
+        return format(output);
     } else {
-        return "\\x" + input;
+        return encodeURIComponent("\\x" + input);
     }
 }
 
 function unicode(input) {
     if (input.match(/[0-9A-Fa-f]/gi)) {
         let output = parseInt(input, 16);
-        output = String.fromCharCode(output);
-        return output;
+        return format(output.substr(0, 2)) + format(output.substr(2));
     } else {
-        return "\\u" + input;
+        return encodeURIComponent("\\u" + input);
     }
 }
+
 function unicode_decode(input) {
     let data = input.split("\\");
     let first = true;
@@ -76,39 +82,38 @@ function unicode_decode(input) {
         if (first) {
             first = false;
             if ('' != data[index]) {
-                output = ouput = data[index];
+                output = encodeURIComponent(data[index]);
             }
         } else {
-            if ('u' == data[index][0]) {
-                output = output + unicode(data[index].substr(1, 4));
-                output = output + data[index].substr(5);
-                continue;
-            }
-            if ('x' == data[index][0]) {
-                output = output + hexadecimal(data[index].substr(1, 2));
-                output = output + data[index].substr(3);
-                continue;
-            }
-            if (data[index][0].match(/[0-9]/gi)) {
-                if (data[index][1].match(/[0-9]/gi)) {
-                    if (data[index][2].match(/[0-9]/gi)) {
-                        output = output + octal(data[index].substr(0, 3));
-                        output = output + data[index].substr(3);
-                    } else {
-                        output = output + octal(data[index].substr(0, 2));
-                        output = output + data[index].substr(2);
-                    }
-                } else {
-                    output = output + octal(data[index].substr(0, 1));
-                    output = output + data[index].substr(1);
+            if (undefined != data[index][0]) {
+                if ('u' == data[index][0]) {
+                    output = output + unicode(data[index].substr(1, 4));
+                    output = output + encodeURIComponent(data[index].substr(5));
+                    continue;
                 }
-                continue;
+                if ('x' == data[index][0]) {
+                    output = output + hexadecimal(data[index].substr(1, 2));
+                    output = output + encodeURIComponent(data[index].substr(3));
+                    continue;
+                }
+                if (data[index][0].match(/[0-9]/gi)) {
+                    if (undefined != data[index][1] && data[index][1].match(/[0-9]/gi)) {
+                        if (undefined != data[index][2] && data[index][2].match(/[0-9]/gi)) {
+                            output = output + octal(data[index].substr(0, 3));
+                            output = output + encodeURIComponent(data[index].substr(3));
+                        } else {
+                            output = output + octal(data[index].substr(0, 2));
+                            output = output + encodeURIComponent(data[index].substr(2));
+                        }
+                    } else {
+                        output = output + octal(data[index].substr(0, 1));
+                        output = output + encodeURIComponent(data[index].substr(1));
+                    }
+                    continue;
+                }
             }
-            output = output + "\\";
+            output = output + encodeURIComponent("\\");
         }
     }
-    return output;
-
+    return decodeURIComponent(output);
 }
-input = "\\u4E2D\\u4E2D";
-unicode_decode(input);
