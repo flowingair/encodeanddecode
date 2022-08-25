@@ -312,22 +312,6 @@ function dec2hex(n) {
 	}
     return retstr.length == 0 ? "0" : retstr;
 }
-//
-function unicode_Encode_full(a)
-{
-	var output = "";
-	for(var i=0;i<a.length;i++)
-	{
-		if(a[i].match(/([0-9A-z])/gi))
-		{
-			output +="\\u00"+a.charCodeAt(i).toString(16).toUpperCase();
-			}else{
-			output +="\\u"+a.charCodeAt(i).toString(16).toUpperCase();
-		}
-	}
-	return output;
-	//return "unicode_Encode_full"
-}
 function url_Encode_full(a)
 {
 	var output="";
@@ -709,10 +693,10 @@ baidu.ed = (function () {
         jQuery("#rst").show();
         var g = jQuery("#rstCode");
         if (jQuery("#uniEncode").attr("checked") == true) {
-            g.val(baidu.endecode.uniEncode(f))
+            g.val(unicode_encode(f))
 			} else {
             if (jQuery("#uniDecode").attr("checked") == true) {
-                g.val(baidu.endecode.uniDecode(f))
+                g.val(unicode_decode(f))
 				} else {
                 if (jQuery("#utf8Encode").attr("checked") == true) {
                     g.val(encodeURIComponent(f))
@@ -750,7 +734,7 @@ baidu.ed = (function () {
 															g.val(unicode_Encode_full(f))
 															} else {
 															if (jQuery("#url_Encode_full").attr("checked") == true) {
-																g.val(url_Encode_full(f))
+																g.val(unicode_encode_full(f))
 																} else {
 																if (jQuery("#base32Encode").attr("checked") == true)
 																{
