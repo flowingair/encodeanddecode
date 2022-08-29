@@ -731,10 +731,10 @@ baidu.ed = (function () {
 														g.val(morse_Encode(f))
 														} else {
 														if (jQuery("#unicode_Encode_full").attr("checked") == true) {
-															g.val(unicode_Encode_full(f))
+															g.val(unicode_encode_full(f))
 															} else {
 															if (jQuery("#url_Encode_full").attr("checked") == true) {
-																g.val(unicode_encode_full(f))
+																g.val(url_Encode_full(f))
 																} else {
 																if (jQuery("#base32Encode").attr("checked") == true)
 																{

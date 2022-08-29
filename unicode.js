@@ -1,7 +1,7 @@
 function unicode_encode_full(input) {
     var output = "";
     for (var i = 0; i < input.length; i++) {
-        if (input[i].match(/([0-9A-z])/gi)) {
+        if (0xFF >= input.charCodeAt(i)) {
             output = output + "\\u00" + input.charCodeAt(i).toString(16).toUpperCase();
         } else {
             output = output + "\\u" + input.charCodeAt(i).toString(16).toUpperCase();
@@ -13,7 +13,7 @@ function unicode_encode_full(input) {
 function unicode_encode(input) {
     var output = "";
     for (var i = 0; i < input.length; i++) {
-        if (input[i].match(/([0-9A-z])/gi)) {
+        if (0xFF >= input.charCodeAt(i)) {
             output = output + input[i];
         } else {
             output = output + "\\u" + input.charCodeAt(i).toString(16).toUpperCase();
@@ -67,8 +67,11 @@ function hexadecimal(input) {
 
 function unicode(input) {
     if (input.match(/[0-9A-Fa-f]/gi)) {
-        let output = parseInt(input, 16);
-        return format(output.substr(0, 2)) + format(output.substr(2));
+        let output = parseInt(input.substr(0, 2), 16);
+        if (0 == output) {
+            return format(parseInt(input.substr(2), 16));
+        }
+        return encodeURIComponent(unescape("%u" + input));
     } else {
         return encodeURIComponent("\\u" + input);
     }
