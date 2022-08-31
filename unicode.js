@@ -116,6 +116,7 @@ function unicode_decode(input) {
                 }
             }
             output = output + encodeURIComponent("\\");
+            output = output + encodeURIComponent(data[index]);
         }
     }
     return decodeURIComponent(output);
