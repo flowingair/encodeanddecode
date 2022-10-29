@@ -725,10 +725,10 @@ baidu.ed = (function () {
 												g.val(jsfuck(f))
 												} else {
 												if (jQuery("#morse_Decode").attr("checked") == true) {
-													g.val(morse_Decode(f))
+													g.val(morjs.decode(f, {mode: 'simple'}))
 													} else {
 													if (jQuery("#morse_Encode").attr("checked") == true) {
-														g.val(morse_Encode(f))
+														g.val(morjs.encode(f, {mode: 'simple'}))
 														} else {
 														if (jQuery("#unicode_Encode_full").attr("checked") == true) {
 															g.val(unicode_encode_full(f))
