@@ -1,0 +1,31 @@
+@media (max-width: 900px) {
+  :root { --header-height: 64px; }
+  .app-header { padding-inline: 18px; }
+  .app-shell { display: block; }
+  .sidebar { display: none; }
+  .workspace { width: 100%; padding: 24px clamp(16px,4vw,32px) 60px; }
+  .mobile-picker { display: grid; gap: 7px; margin-bottom: 28px; }
+  .mobile-picker label { color: var(--text-soft); font-size: 12px; font-weight: 700; }
+  .mobile-picker select { width: 100%; min-height: 46px; }
+}
+@media (max-width: 620px) {
+  .brand small, .theme-control>span, .shortcut-hint, .section-heading>p { display: none; }
+  .brand-mark { width: 38px; height: 38px; }
+  .theme-control select { width: 116px; min-height: 40px; }
+  .tool-header { display: block; }
+  .tool-header h2 { font-size: 34px; }
+  .badges { justify-content: flex-start; margin-top: 16px; }
+  .settings-card { padding: 19px 16px; border-radius: var(--radius-md); }
+  .config-grid { grid-template-columns: 1fr; }
+  .field-wide { grid-column: auto; }
+  .action-switcher { display: grid; grid-auto-flow: column; width: 100%; }
+  .action-option { min-width: 0; }
+  .editor-card { border-radius: var(--radius-md); }
+  textarea, .result-card textarea { min-height: 190px; padding: 16px; font-size: 12px; }
+  .editor-toolbar { flex-wrap: wrap; padding: 10px; }
+  .button-primary { width: 100%; order: -1; }
+  .result-card .editor-toolbar .toolbar-spacer { display: none; }
+  .result-card .button { flex: 1; }
+  .error-panel { grid-template-columns: auto 1fr; }
+  .error-panel .icon-button { grid-column: 2; justify-self: start; }
+}

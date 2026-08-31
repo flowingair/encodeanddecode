@@ -1,99 +1,114 @@
-<html lang=zh-CN>
-	<head>
-		<title>字符串编解码工具</title>
-		<meta charset=UTF-8>
-		<!--[if (lt IE 8.0)]>
-		<link rel=stylesheet href=fe-endecode.css><![endif]-->
-		<!--[if (!IE)|(gte IE 8.0)]>
-		<!-->
-		<link rel=stylesheet href=fe-endecode_datauri.css>
-		<!--<![endif]-->
-		<script src=jquery-1.5.min.js></script>
-		<script src=mod_endecode.js></script>
-		<script src=jsfuck.js></script>
-		<script src=morse.js></script>
-		<script src=vbs.js></script>
-		<script src=kimoji.js></script>
-		<script src=OCT.js></script>
-		<script src=unicode.js></script>
-		<script src=brainfuck.js></script>
-		<script src="crypto-js-3.1.9-1/crypto-js.js"></script>
-	</head>
-	<body>
-		<div class="mod-endecode -e-x-container">
-			<fieldset>
-				<legend>对字符串进行各种编解码操作</legend>
-				<div class="x-input">
-					<textarea class="-e-zxl-ta-src" id="srcText" placeholder="在这里粘贴您需要进行编码转换的字符串"></textarea>
-				</div>
-				<div class="-e-x-btn">
-					<span class="-e-x-radio">
-						<input type="radio" name="codeType" id="uniEncode" checked="checked">
-						<label for="uniEncode">Unicode编码</label>
-						<input type="radio" name="codeType" id="uniDecode">
-						<label for="uniDecode">Unicode解码</label>
-						<input type="radio" name="codeType" id="utf8Encode">
-						<label for="utf8Encode">URL编码</label>
-						<input type="radio" name="codeType" id="utf8Decode">
-						<label for="utf8Decode">URL解码</label>
-						<input type="radio" name="codeType" id="base64Encode">
-						<label for="base64Encode">base64编码</label>
-						<input type="radio" name="codeType" id="base64Decode">
-						<label for="base64Decode">base64解码</label>
-						<input type="radio" name="codeType" id="base32Encode">
-						<label for="base32Encode">base32编码</label>
-						<input type="radio" name="codeType" id="base32Decode">
-						<label for="base32Decode">base32解码</label>
-						<br>
-						<input type="radio" name="codeType" id="ten_Encode">
-						<label for="ten_Encode">10进制编码</label>
-						<input type="radio" name="codeType" id="ten_Decode">
-						<label for="ten_Decode">10进制解码</label>
-						<input type="radio" name="codeType" id="morse_Encode">
-						<label for="morse_Encode">摩尔编码</label>
-						<input type="radio" name="codeType" id="morse_Decode">
-						<label for="morse_Decode">摩尔解码</label>
-						<input type="radio" name="codeType" id="unicode_Encode_full">
-						<label for="unicode_Encode_full">Unicode编码(全)</label>
-						<input type="radio" name="codeType" id="url_Encode_full">
-						<label for="url_Encode_full">URL编码(全)</label>
-						<input type="radio" name="codeType" id="eval_jsfuck">
-						<label for="eval_jsfuck">eval(jsfuck)</label>
-						<input type="radio" name="codeType" id="jsfuck">
-						<label for="jsfuck">jsfuck</label>
-						<br>
-						<input type="radio" name="codeType" id="vbsEncode">
-						<label for="vbsEncode"> VBScript编码</label>
-						<input type="radio" name="codeType" id="vbsDecode">
-						<label for="vbsDecode"> VBScript解码</label>
-						<input type="radio" name="codeType" id="kimojiEncode">
-						<label for="kimojiEncode">kimoji编码</label>
-						<input type="radio" name="codeType" id="brainfuckEncode">
-						<label for="brainfuckEncode">brainfuck编码</label>
-						<input type="radio" name="codeType" id="brainfuckDecode">
-						<label for="brainfuckDencode">brainfuck解码</label>
-						<input type="radio" name="codeType" id="detection">
-						<label for="detection">检测</label>
-						<br>
-						<input type="radio" name="codeType" id="md5Encode">
-						<label for="md5Encode">MD5编码</label>
-						<input type="radio" name="codeType" id="SHA1">
-						<label for="SHA1">SHA1编码</label>
-						<input type="radio" name="codeType" id="SHA224">
-						<label for="SHA224">SHA224编码</label>
-						<input type="radio" name="codeType" id="SHA256">
-						<label for="SHA256">SHA256编码</label>
-						<input type="radio" name="codeType" id="SHA384">
-						<label for="SHA384">SHA384编码</label>
-						<input type="radio" name="codeType" id="SHA512">
-						<label for="SHA512">SHA512编码</label>
-					</span>
-					<input id="btnCodeClear" class="-e-btn -e-clear-btn" type="button" value="清空">
-					<input id="btnCodeChange" class="-e-btn" type="button" value="转换">
-				</div>
-			</fieldset>
-			<div id="rst" class="x-input -e-x-rst">
-				<textarea class="zxl-ta-rst" id="rstCode" cols="" rows=""></textarea>
-			</div>
-		</div>
-	</div>		
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="在浏览器本地完成文本编码、解码、摘要与加密操作。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231d241f'/%3E%3Ctext x='32' y='38' text-anchor='middle' font-family='monospace' font-size='18' font-weight='700' fill='white'%3EE/D%3C/text%3E%3C/svg%3E">
+  <title>Encode / Decode · 字符串工具箱</title>
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/app.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/responsive.css">
+
+  <script type="module" src="scripts/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">跳到工作区</a>
+  <header class="app-header">
+    <div class="brand" aria-label="Encode Decode 字符串工具箱">
+      <span class="brand-mark" aria-hidden="true">E/D</span>
+      <span><strong>Encode / Decode</strong><small>字符串工具箱</small></span>
+    </div>
+    <label class="theme-control">
+      <span>外观</span>
+      <select id="themeSelect" aria-label="选择界面主题">
+        <option value="system">跟随系统</option>
+        <option value="light">浅色</option>
+        <option value="dark">深色</option>
+      </select>
+    </label>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="算法导航">
+      <div class="sidebar-heading"><p class="eyebrow">工具目录</p><h1>选择算法</h1></div>
+      <label class="search-box">
+        <span class="sr-only">搜索算法</span><span aria-hidden="true">⌕</span>
+        <input id="algorithmSearch" type="search" autocomplete="off" placeholder="搜索算法或用途">
+      </label>
+      <nav id="algorithmNav" class="algorithm-nav" aria-label="算法列表"></nav>
+      <p id="algorithmEmpty" class="empty-filter" hidden>没有匹配的算法</p>
+    </aside>
+
+    <main id="workspace" class="workspace" tabindex="-1">
+      <div class="mobile-picker">
+        <label for="mobileAlgorithmSelect">当前工具</label>
+        <select id="mobileAlgorithmSelect"></select>
+      </div>
+
+      <section class="tool-header" aria-labelledby="toolTitle">
+        <div>
+          <p id="toolCategory" class="eyebrow"></p>
+          <h2 id="toolTitle"></h2>
+          <p id="toolDescription" class="tool-description"></p>
+        </div>
+        <div id="toolBadges" class="badges" aria-label="算法特性"></div>
+      </section>
+
+      <section class="settings-card" aria-labelledby="settingsTitle">
+        <div class="section-heading">
+          <div><p class="step-label">01</p><h3 id="settingsTitle">转换设置</h3></div>
+          <p id="settingsHint">按当前算法显示可用选项</p>
+        </div>
+        <div id="actionSwitcher" class="action-switcher" aria-label="操作方向"></div>
+        <div id="configForm" class="config-grid"></div>
+      </section>
+
+      <section class="editor-card" aria-labelledby="inputTitle">
+        <div class="section-heading editor-heading">
+          <div><p class="step-label">02</p><h3 id="inputTitle">输入</h3></div>
+          <div class="editor-meta"><span id="inputCount">0 字符</span></div>
+        </div>
+        <label class="sr-only" for="sourceText">待处理的输入内容</label>
+        <textarea id="sourceText" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="在这里粘贴或输入内容…"></textarea>
+        <div class="editor-toolbar">
+          <button id="sampleButton" class="button button-ghost" type="button">填入示例</button>
+          <button id="clearButton" class="button button-ghost danger-hover" type="button">清空</button>
+          <span class="toolbar-spacer"></span><span class="shortcut-hint">⌘ / Ctrl + Enter</span>
+          <button id="runButton" class="button button-primary" type="button"><span>开始转换</span><span aria-hidden="true">→</span></button>
+        </div>
+      </section>
+
+      <section id="errorPanel" class="error-panel" role="alert" aria-live="assertive" hidden>
+        <div class="error-icon" aria-hidden="true">!</div>
+        <div class="error-content">
+          <h3 id="errorTitle">转换失败</h3><p id="errorMessage"></p>
+          <details><summary>查看技术详情</summary><pre id="errorDetails"></pre></details>
+        </div>
+        <button id="copyErrorButton" class="icon-button" type="button" aria-label="复制错误详情">复制</button>
+      </section>
+
+      <section class="editor-card result-card" aria-labelledby="outputTitle">
+        <div class="section-heading editor-heading">
+          <div><p class="step-label">03</p><h3 id="outputTitle">输出</h3></div>
+          <div class="result-status">
+            <span id="resultIndicator" class="status-dot" data-status="idle" aria-hidden="true"></span>
+            <span id="resultStatus" aria-live="polite">等待转换</span><span id="resultTime"></span>
+          </div>
+        </div>
+        <label class="sr-only" for="resultText">转换结果</label>
+        <textarea id="resultText" readonly spellcheck="false" placeholder="转换结果会显示在这里"></textarea>
+        <div class="editor-toolbar">
+          <button id="swapButton" class="button button-ghost" type="button" hidden>交换输入输出</button>
+          <span class="toolbar-spacer"></span>
+          <button id="downloadButton" class="button button-ghost" type="button" disabled>下载</button>
+          <button id="copyButton" class="button button-secondary" type="button" disabled>复制结果</button>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

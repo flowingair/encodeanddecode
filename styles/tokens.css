@@ -1,0 +1,39 @@
+:root {
+  color-scheme: light dark;
+  --font-sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --bg: #f8f9fa; --bg-accent: #e8f0fe; --surface: rgba(255,255,255,.9);
+  --surface-solid: #fff; --surface-muted: #f1f3f4; --surface-hover: #e8eaed;
+  --text: #202124; --text-soft: #5f6368; --text-faint: #80868b;
+  --border: #dadce0; --border-strong: #bdc1c6;
+  --accent: #1a73e8; --accent-hover: #1765cc; --accent-soft: #e8f0fe; --accent-text: #185abc;
+  --danger: #b33838; --danger-soft: #f9e5e3; --warning: #a56813;
+  --shadow-sm: 0 1px 2px rgba(28,39,31,.05); --shadow-md: 0 12px 40px rgba(26,37,29,.08);
+  --focus: 0 0 0 3px rgba(26,115,232,.2);
+  --radius-sm: 8px; --radius-md: 14px; --radius-lg: 22px;
+  --header-height: 72px; --sidebar-width: 272px; --transition: 160ms ease;
+}
+
+:root[data-theme="dark"] {
+  --bg: #202124; --bg-accent: #292a2d; --surface: rgba(41,42,45,.94);
+  --surface-solid: #292a2d; --surface-muted: #303134; --surface-hover: #3c4043;
+  --text: #e8eaed; --text-soft: #bdc1c6; --text-faint: #9aa0a6;
+  --border: #3c4043; --border-strong: #5f6368;
+  --accent: #8ab4f8; --accent-hover: #aecbfa; --accent-soft: #394457; --accent-text: #d2e3fc;
+  --danger: #f28b82; --danger-soft: #442726; --warning: #fdd663;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.3); --shadow-md: 0 16px 48px rgba(0,0,0,.32);
+  --focus: 0 0 0 3px rgba(138,180,248,.28);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #202124; --bg-accent: #292a2d; --surface: rgba(41,42,45,.94);
+    --surface-solid: #292a2d; --surface-muted: #303134; --surface-hover: #3c4043;
+    --text: #e8eaed; --text-soft: #bdc1c6; --text-faint: #9aa0a6;
+    --border: #3c4043; --border-strong: #5f6368;
+    --accent: #8ab4f8; --accent-hover: #aecbfa; --accent-soft: #394457; --accent-text: #d2e3fc;
+    --danger: #f28b82; --danger-soft: #442726; --warning: #fdd663;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.3); --shadow-md: 0 16px 48px rgba(0,0,0,.32);
+    --focus: 0 0 0 3px rgba(138,180,248,.28);
+  }
+}
