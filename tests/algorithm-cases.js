@@ -5,10 +5,23 @@ import { aesGcmTransform } from "../scripts/algorithms/aes-gcm.js";
 const cases = [
   ["Unicode 往返", () => unicodeTransform("decode", unicodeTransform("encode", "你好 👋", { escapeAll: true, hexCase: "upper" }), {}) === "你好 👋"],
   ["URL 组件往返", () => urlTransform("decode", urlTransform("encode", "中文 & space", { scope: "component" }), { scope: "component" }) === "中文 & space"],
+  ["完整 URI 保留结构字符", () => urlTransform("encode", "https://example.com/搜索?q=编码 测试", { scope: "uri" }) === "https://example.com/%E6%90%9C%E7%B4%A2?q=%E7%BC%96%E7%A0%81%20%E6%B5%8B%E8%AF%95"],
+  ["所有字符百分号编码", () => urlTransform("encode", "Az09-._~ 中", { scope: "percent" }) === "%41%7A%30%39%2D%2E%5F%7E%20%E4%B8%AD"],
+  ["百分号编码往返", () => urlTransform("decode", urlTransform("encode", "路径/中文?x=1", { scope: "percent" }), { scope: "percent" }) === "路径/中文?x=1"],
+  ["非法百分号序列转换为应用错误", () => {
+    try { urlTransform("decode", "%ZZ", { scope: "component" }); }
+    catch (error) { return error.name === "AppError" && error.code === "INVALID_URL_ENCODING"; }
+    return false;
+  }],
+  ["无效 UTF-8 转换为应用错误", () => {
+    try { urlTransform("decode", "%FF", { scope: "percent" }); }
+    catch (error) { return error.name === "AppError" && error.code === "INVALID_URL_ENCODING"; }
+    return false;
+  }],
   ["Base64 UTF-8 往返", () => base64Transform("decode", base64Transform("encode", "Hello 世界", { variant: "standard", padding: true }), { variant: "standard" }) === "Hello 世界"],
   ["Base64 URL-safe 往返", () => base64Transform("decode", base64Transform("encode", "✓ URL", { variant: "url", padding: false }), { variant: "url" }) === "✓ URL"],
   ["Base32 UTF-8 往返", () => base32Transform("decode", base32Transform("encode", "Base32 中文", { padding: true }), {}) === "Base32 中文"],
-  ["码点往返", () => decimalTransform("decode", decimalTransform("encode", "A👋中", { separator: "," }), { separator: "," }) === "A👋中"],
+  ["码位往返", () => decimalTransform("decode", decimalTransform("encode", "A👋中", { separator: "," }), { separator: "," }) === "A👋中"],
   ["SHA-256 标准值", () => hashTransform("abc", { digest: "SHA256", outputFormat: "hex", uppercase: false }) === "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"],
   ["HMAC-SHA256 标准值", () => hmacTransform("The quick brown fox jumps over the lazy dog", { digest: "SHA256", key: "key", outputFormat: "hex", uppercase: false }) === "f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8"],
   ["PBKDF2 输出长度", () => pbkdf2Transform("password", { salt: "salt", iterations: 2, keyBytes: 32, digest: "SHA256", outputFormat: "hex" }).length === 64],

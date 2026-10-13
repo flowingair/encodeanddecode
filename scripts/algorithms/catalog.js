@@ -74,9 +74,9 @@ export const algorithms = [
   },
   {
     id: "url", title: "URL 编码", category: "常用编码", icon: "%", actions: directionActions,
-    description: "对完整 URL 或单个参数进行百分号编码与解码。",
+    description: "对完整 URI、URL 组件或所有 UTF-8 字节进行百分号编码与解码。",
     badges: ["可逆", "UTF-8"], sample: "https://example.com/搜索?q=编码 测试",
-    fields: [select("scope", "处理范围", "component", [option("component", "URL 组件"), option("uri", "完整 URI")], { wide: true })]
+    fields: [select("scope", "处理范围", "component", [option("component", "URL 组件"), option("uri", "完整 URI"), option("percent", "百分号编码（所有字符）")], { wide: true })]
   },
   {
     id: "base64", title: "Base64", category: "常用编码", icon: "64", actions: directionActions,
@@ -94,8 +94,8 @@ export const algorithms = [
     fields: [checkbox("padding", "保留末尾填充 =", true, { actions: ["encode"], wide: true })]
   },
   {
-    id: "decimal", title: "字符码点", category: "进阶编码", icon: "10", actions: directionActions,
-    description: "在文本和十进制 Unicode 码点列表之间转换。",
+    id: "decimal", title: "字符码位", category: "进阶编码", icon: "10", actions: directionActions,
+    description: "在文本和十进制 Unicode 码位列表之间转换。",
     badges: ["可逆", "Unicode"], sample: "ABC中文",
     fields: [text("separator", "分隔符", ",", { required: true, help: "解码时也使用这个分隔符。", wide: true })]
   },
@@ -150,8 +150,8 @@ export const algorithms = [
   },
   {
     id: "stats", title: "字符统计", category: "摘要与分析", icon: "∑", actions: [action("analyze", "分析")],
-    description: "统计字符、码点、字节、行数和不同字符的出现次数。",
-    badges: ["分析", "Unicode"], sample: "Hello\n你好你好 👋", fields: [select("sort", "字符排序", "frequency", [option("frequency", "按出现次数"), option("codepoint", "按码点")], { wide: true })]
+    description: "统计字符、码位、字节、行数和不同字符的出现次数。",
+    badges: ["分析", "Unicode"], sample: "Hello\n你好你好 👋", fields: [select("sort", "字符排序", "frequency", [option("frequency", "按出现次数"), option("codepoint", "按码位")], { wide: true })]
   },
   blockCipher("aes", "AES", "使用 AES 对 UTF-8 文本进行加密或解密。", "AE", "口令模式自动派生密钥；原始模式接受 16、24 或 32 字节 Hex 密钥。"),
   blockCipher("des", "DES", "使用兼容性较弱的 DES 算法进行转换。仅建议处理历史数据。", "DE", "原始 DES 密钥必须是 8 字节 Hex。"),

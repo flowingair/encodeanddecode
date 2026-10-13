@@ -51,10 +51,17 @@ export async function runUiTests() {
     if (document.querySelector("#resultText").value !== "5L2g5aW9") throw new Error("Base64 输出不匹配");
   });
 
-  await test("URL 错误展示", async () => {
+  await test("URL 非法序列使用应用错误", async () => {
     selectAlgorithm("url"); selectAction("解码"); setInput("%ZZ"); await run();
     if (document.querySelector("#errorPanel").hidden) throw new Error("无效 URL 未显示错误面板");
-    if (!document.querySelector("#errorDetails").textContent.includes("URIError")) throw new Error("错误详情缺少原始异常类型");
+    const details = document.querySelector("#errorDetails").textContent;
+    if (!details.includes("INVALID_URL_ENCODING")) throw new Error("错误详情缺少应用错误码");
+    if (details.includes("URIError")) throw new Error("错误详情仍然暴露原生 URIError");
+  });
+
+  await test("所有字符百分号编码模式", async () => {
+    selectAlgorithm("url"); selectAction("编码"); setField("scope", "percent"); setInput("Az 中"); await run();
+    if (document.querySelector("#resultText").value !== "%41%7A%20%E4%B8%AD") throw new Error("百分号编码输出不匹配");
   });
 
   await test("SHA-256 页面转换", async () => {

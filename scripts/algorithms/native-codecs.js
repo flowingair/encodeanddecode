@@ -5,7 +5,7 @@ export function unicodeTransform(action, input, config) {
     try {
       return input.replace(/\\u\{([0-9a-fA-F]{1,6})\}|\\u([0-9a-fA-F]{4})|\\x([0-9a-fA-F]{2})|\\([0-7]{1,3})/g, (_, braced, unicode, hex, octal) => {
         const value = parseInt(braced || unicode || hex || octal, octal ? 8 : 16);
-        if (value > 0x10ffff) throw new AppError("INVALID_UNICODE", "Unicode 码点超出有效范围。", { details: `codePoint=${value}` });
+        if (value > 0x10ffff) throw new AppError("INVALID_UNICODE", "Unicode 码位超出有效范围。", { details: `codePoint=${value}` });
         return braced ? String.fromCodePoint(value) : String.fromCharCode(value);
       });
     } catch (error) {
@@ -30,8 +30,62 @@ export function unicodeTransform(action, input, config) {
 }
 
 export function urlTransform(action, input, config) {
-  if (action === "encode") return config.scope === "uri" ? encodeURI(input) : encodeURIComponent(input);
-  return config.scope === "uri" ? decodeURI(input) : decodeURIComponent(input);
+  const scope = config.scope || "component";
+  if (scope === "percent") return action === "encode" ? encodeAllBytes(input) : decodePercent(input);
+
+  try {
+    if (action === "encode") return scope === "uri" ? encodeURI(input) : encodeURIComponent(input);
+    return scope === "uri" ? decodeURI(input) : decodeURIComponent(input);
+  } catch (error) {
+    if (!(error instanceof URIError)) throw error;
+    throw new AppError("INVALID_URL_ENCODING", "输入中包含无效的 URL 转义序列或无法编码的字符。", { details: error.message });
+  }
+}
+
+function encodeAllBytes(input) {
+  let output = "";
+  for (const byte of new TextEncoder().encode(input)) {
+    output += `%${byte.toString(16).toUpperCase().padStart(2, "0")}`;
+  }
+  return output;
+}
+
+function decodePercent(input) {
+  const decoder = new TextDecoder("utf-8", { fatal: true });
+  let output = "";
+  let bytes = [];
+
+  const flushBytes = () => {
+    if (!bytes.length) return;
+    try {
+      output += decoder.decode(Uint8Array.from(bytes));
+    } catch {
+      throw new AppError("INVALID_URL_ENCODING", "百分号编码包含无效的 UTF-8 字节序列。");
+    } finally {
+      bytes = [];
+    }
+  };
+
+  for (let index = 0; index < input.length;) {
+    if (input[index] !== "%") {
+      flushBytes();
+      output += input[index];
+      index += 1;
+      continue;
+    }
+
+    const hex = input.slice(index + 1, index + 3);
+    if (!/^[0-9a-fA-F]{2}$/.test(hex)) {
+      throw new AppError("INVALID_URL_ENCODING", "输入中包含无效的百分号转义序列。", { details: `index=${index}` });
+    }
+
+    const byte = parseInt(hex, 16);
+    bytes.push(byte);
+    index += 3;
+  }
+
+  flushBytes();
+  return output;
 }
 
 export function base64Transform(action, input, config) {
@@ -96,7 +150,7 @@ export function decimalTransform(action, input, config) {
   return input.split(separator).map((part, index) => {
     const value = Number(part.trim());
     if (!Number.isInteger(value) || value < 0 || value > 0x10ffff) {
-      throw new AppError("INVALID_CODE_POINT", `第 ${index + 1} 项不是有效的 Unicode 码点。`, { details: `value=${part}` });
+      throw new AppError("INVALID_CODE_POINT", `第 ${index + 1} 项不是有效的 Unicode 码位。`, { details: `value=${part}` });
     }
     return String.fromCodePoint(value);
   }).join("");
@@ -115,12 +169,12 @@ export function statsTransform(input, config) {
   const details = entries.map(([char, count]) => `${printable(char)}\t${count}\tU+${char.codePointAt(0).toString(16).toUpperCase().padStart(4, "0")}`);
   return [
     `UTF-16 长度：${input.length}`,
-    `Unicode 码点：${[...input].length}`,
+    `Unicode 码位：${[...input].length}`,
     `UTF-8 字节数：${byteLength}`,
     `行数：${lines}`,
     `不同字符：${counts.size}`,
     "",
-    "字符\t次数\t码点",
+    "字符\t次数\t码位",
     ...details
   ].join("\n");
 }
