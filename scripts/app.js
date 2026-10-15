@@ -11,7 +11,7 @@ import { setupTheme } from "./ui/theme.js";
 
 const $ = (selector) => document.querySelector(selector);
 const elements = {
-  theme: $("#themeSelect"), search: $("#algorithmSearch"), nav: $("#algorithmNav"), navEmpty: $("#algorithmEmpty"),
+  theme: $("#themeSelect"), autoConvert: $("#autoConvert"), search: $("#algorithmSearch"), nav: $("#algorithmNav"), navEmpty: $("#algorithmEmpty"),
   mobilePicker: $("#mobileAlgorithmSelect"), category: $("#toolCategory"), title: $("#toolTitle"),
   description: $("#toolDescription"), badges: $("#toolBadges"), actions: $("#actionSwitcher"), config: $("#configForm"),
   source: $("#sourceText"), inputCount: $("#inputCount"), resultText: $("#resultText"), run: $("#runButton"),
@@ -30,10 +30,14 @@ const state = {
   actions: new Map(),
   fieldErrors: {},
   running: false,
+  revision: 0,
+  autoConvert: loadSetting("autoConvert", "false") === "true",
+  autoTimer: 0,
   toastTimer: 0
 };
 
 setupTheme(elements.theme);
+elements.autoConvert.checked = state.autoConvert;
 installGlobalErrorLogging();
 renderMobilePicker(elements.mobilePicker, algorithms, state.selectedId);
 bindEvents();
@@ -57,12 +61,18 @@ function currentAction() {
 function bindEvents() {
   elements.search.addEventListener("input", renderNav);
   elements.mobilePicker.addEventListener("change", () => selectAlgorithm(elements.mobilePicker.value));
-  elements.source.addEventListener("input", updateInputCount);
+  elements.source.addEventListener("input", () => { updateInputCount(); inputChanged(); });
+  elements.autoConvert.addEventListener("change", () => {
+    state.autoConvert = elements.autoConvert.checked;
+    saveSetting("autoConvert", String(state.autoConvert));
+    if (state.autoConvert) scheduleAutoConvert();
+    else clearTimeout(state.autoTimer);
+  });
   elements.source.addEventListener("keydown", (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); execute(); }
   });
   elements.run.addEventListener("click", execute);
-  elements.sample.addEventListener("click", () => { elements.source.value = currentAlgorithm().sample || ""; updateInputCount(); elements.source.focus(); });
+  elements.sample.addEventListener("click", () => { elements.source.value = currentAlgorithm().sample || ""; updateInputCount(); inputChanged(); elements.source.focus(); });
   elements.clear.addEventListener("click", clearCurrent);
   elements.swap.addEventListener("click", swapInputOutput);
   elements.copy.addEventListener("click", () => copyText(elements.resultText.value, "结果已复制"));
@@ -79,7 +89,7 @@ function selectAlgorithm(id, clear = true) {
   elements.mobilePicker.value = id;
   renderNav();
   renderTool();
-  if (clear) clearResult();
+  if (clear) inputChanged();
   if (clear && previousId !== id) logAlgorithmSelection({ from: previousId, to: id, category: currentAlgorithm().category });
 }
 
@@ -109,17 +119,32 @@ function renderSettings() {
     state.actions.set(state.selectedId, nextAction);
     state.fieldErrors = {};
     renderSettings();
-    clearResult();
+    inputChanged();
     if (previousAction !== nextAction) logActionSelection({ algorithm: algorithm.id, from: previousAction, to: nextAction });
   });
   renderConfigForm(elements.config, algorithm, action, config, state.fieldErrors, (field) => {
     delete state.fieldErrors[field.id];
     if (field.type === "select" || field.type === "checkbox") renderSettings();
+    inputChanged();
   });
+}
+
+function inputChanged() {
+  state.revision += 1;
+  clearResult();
+  scheduleAutoConvert();
+}
+
+function scheduleAutoConvert(delay = 250) {
+  clearTimeout(state.autoTimer);
+  if (!state.autoConvert || !elements.source.value) return;
+  state.autoTimer = setTimeout(() => execute(), delay);
 }
 
 async function execute() {
   if (state.running) return;
+  clearTimeout(state.autoTimer);
+  const revision = state.revision;
   const algorithm = currentAlgorithm();
   const action = currentAction();
   const config = currentConfig();
@@ -139,13 +164,15 @@ async function execute() {
   setResultState(elements.error.result, "running", "正在转换");
   try {
     const result = await runAlgorithm(algorithm, action, elements.source.value, { ...config });
+    if (revision !== state.revision) return;
     elements.resultText.value = result.output;
     elements.copy.disabled = false;
     elements.download.disabled = false;
-    elements.swap.hidden = !isReversible(algorithm) || !result.output;
+    elements.swap.hidden = !isReversible(algorithm) || !result.output || (action === "decode" && config.outputMode && config.outputMode !== "text");
     elements.error.result.indicator.dataset.executor = result.executionTarget;
     setResultState(elements.error.result, "success", result.output ? "转换完成" : "转换完成（空结果）", result.duration);
   } catch (normalized) {
+    if (revision !== state.revision) return;
     elements.resultText.value = "";
     elements.copy.disabled = true;
     elements.download.disabled = true;
@@ -154,6 +181,7 @@ async function execute() {
     showError(elements.error, normalized.error && normalized.diagnostic ? normalized : normalizeError(normalized));
   } finally {
     setRunning(false);
+    if (revision !== state.revision) scheduleAutoConvert(0);
   }
 }
 
@@ -169,7 +197,7 @@ function clearCurrent() {
   elements.source.value = "";
   renderSettings();
   updateInputCount();
-  clearResult();
+  inputChanged();
   elements.source.focus();
 }
 
@@ -197,7 +225,7 @@ function swapInputOutput() {
   if (reverse) state.actions.set(state.selectedId, reverse);
   renderSettings();
   updateInputCount();
-  clearResult();
+  inputChanged();
   elements.source.focus();
 }
 

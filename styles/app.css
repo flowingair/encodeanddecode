@@ -12,6 +12,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .brand strong, .brand small { display: block; }
 .brand strong { font-size: 15px; letter-spacing: -.01em; }
 .brand small { margin-top: 2px; color: var(--text-soft); font-size: 12px; }
+.header-controls { display: flex; align-items: center; gap: 18px; }
+.auto-control { display: inline-flex; align-items: center; gap: 7px; color: var(--text-soft); cursor: pointer; font-size: 13px; white-space: nowrap; }
+.auto-control input { width: 17px; height: 17px; margin: 0; accent-color: var(--accent); }
 .theme-control { display: flex; align-items: center; gap: 9px; color: var(--text-soft); font-size: 13px; }
 .theme-control select, .mobile-picker select { min-height: 40px; padding: 0 34px 0 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-solid); color: var(--text); }
 .app-shell { display: grid; grid-template-columns: var(--sidebar-width) minmax(0,1fr); width: min(1440px,100%); min-height: calc(100vh - var(--header-height)); margin: 0 auto; }

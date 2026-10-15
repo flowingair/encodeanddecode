@@ -8,6 +8,7 @@ const action = (id, label) => ({ id, label });
 const directionActions = [action("encode", "编码"), action("decode", "解码")];
 const cipherActions = [action("encrypt", "加密"), action("decrypt", "解密")];
 const formatOptions = [option("base64", "Base64"), option("hex", "Hex")];
+const byteOutput = select("outputMode", "解码输出", "text", [option("text", "UTF-8 文本"), option("hex", "Hex 字节"), option("xxd", "文本 + xxd 字节视图")], { actions: ["decode"], wide: true });
 const keyMode = select("keyMode", "密钥类型", "passphrase", [option("passphrase", "口令"), option("raw", "原始 Hex 密钥")], { wide: true });
 const secretKey = text("key", "密钥 / 口令", "", { required: true, secret: true, wide: true, autocomplete: "new-password", help: "敏感值不会保存，也不会写入 Console。" });
 
@@ -80,12 +81,20 @@ export const algorithms = [
   },
   {
     id: "base64", title: "Base64", category: "常用编码", icon: "64", actions: directionActions,
-    description: "使用 UTF-8 文本进行标准 Base64 或 URL-safe Base64 转换。",
+    description: "转换 UTF-8 文本和 Base64；解码可跳过无效字符并查看原始字节。",
     badges: ["可逆", "UTF-8"], sample: "Encode / Decode 编解码工具",
     fields: [
       select("variant", "变体", "standard", [option("standard", "标准 Base64"), option("url", "URL-safe")]),
-      checkbox("padding", "保留末尾填充 =", true, { actions: ["encode"] })
+      checkbox("padding", "保留末尾填充 =", true, { actions: ["encode"] }),
+      select("decodeMode", "解码模式", "strict", [option("strict", "严格"), option("ignoreInvalid", "跳过无效字符")], { actions: ["decode"], help: "宽松模式会跳过字母表之外的字符和填充符。" }),
+      byteOutput
     ]
+  },
+  {
+    id: "hex", title: "Hex 字节", category: "常用编码", icon: "16", actions: directionActions,
+    description: "将 UTF-8 文本编码为十六进制，或解码十六进制字节并查看文本和 xxd 视图。",
+    badges: ["可逆", "字节"], sample: "48656c6c6f20e4b896e7958c", defaultAction: "decode",
+    fields: [byteOutput]
   },
   {
     id: "base32", title: "Base32", category: "常用编码", icon: "32", actions: directionActions,

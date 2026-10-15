@@ -1,5 +1,5 @@
 import { AppError } from "../core/errors.js";
-import { unicodeTransform, urlTransform, base64Transform, base32Transform, decimalTransform, statsTransform } from "./native-codecs.js";
+import { unicodeTransform, urlTransform, base64Transform, hexTransform, base32Transform, decimalTransform, statsTransform } from "./native-codecs.js";
 import { hashTransform, hmacTransform, pbkdf2Transform, cipherTransform } from "./crypto-adapters.js";
 import { aesGcmTransform } from "./aes-gcm.js";
 
@@ -8,6 +8,7 @@ export async function executeAdapter(algorithmId, action, input, config) {
     case "unicode": return unicodeTransform(action, input, config);
     case "url": return urlTransform(action, input, config);
     case "base64": return base64Transform(action, input, config);
+    case "hex": return hexTransform(action, input, config);
     case "base32": return base32Transform(action, input, config);
     case "decimal": return decimalTransform(action, input, config);
     case "morse": return morseTransform(action, input, config);

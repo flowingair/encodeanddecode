@@ -1,4 +1,4 @@
-import { unicodeTransform, urlTransform, base64Transform, base32Transform, decimalTransform } from "../scripts/algorithms/native-codecs.js";
+import { unicodeTransform, urlTransform, base64Transform, hexTransform, base32Transform, decimalTransform } from "../scripts/algorithms/native-codecs.js";
 import { hashTransform, hmacTransform, pbkdf2Transform, cipherTransform } from "../scripts/algorithms/crypto-adapters.js";
 import { aesGcmTransform } from "../scripts/algorithms/aes-gcm.js";
 
@@ -20,6 +20,23 @@ const cases = [
   }],
   ["Base64 UTF-8 往返", () => base64Transform("decode", base64Transform("encode", "Hello 世界", { variant: "standard", padding: true }), { variant: "standard" }) === "Hello 世界"],
   ["Base64 URL-safe 往返", () => base64Transform("decode", base64Transform("encode", "✓ URL", { variant: "url", padding: false }), { variant: "url" }) === "✓ URL"],
+  ["Base64 宽松模式跳过杂字符", () => base64Transform("decode", "S!G@V#s$bG8=", { variant: "standard", decodeMode: "ignoreInvalid" }) === "Hello"],
+  ["Base64 严格模式拒绝杂字符", () => {
+    try { base64Transform("decode", "S!GVsbG8=", { variant: "standard", decodeMode: "strict" }); }
+    catch (error) { return error.code === "INVALID_BASE64"; }
+    return false;
+  }],
+  ["Base64 二进制 Hex 和 xxd 展示", () => {
+    const hex = base64Transform("decode", "/wBB", { outputMode: "hex" });
+    const dump = base64Transform("decode", "/wBB", { outputMode: "xxd" });
+    return hex === "ff0041" && dump.includes("00000000: ff00 41") && dump.includes("..A");
+  }],
+  ["Hex 文本往返及分隔字节", () => hexTransform("encode", "你好", {}) === "e4bda0e5a5bd" && hexTransform("decode", "e4 bd a0 e5 a5 bd", {}) === "你好"],
+  ["Hex 拒绝半个字节", () => {
+    try { hexTransform("decode", "abc", {}); }
+    catch (error) { return error.code === "INVALID_HEX"; }
+    return false;
+  }],
   ["Base32 UTF-8 往返", () => base32Transform("decode", base32Transform("encode", "Base32 中文", { padding: true }), {}) === "Base32 中文"],
   ["码位往返", () => decimalTransform("decode", decimalTransform("encode", "A👋中", { separator: "," }), { separator: "," }) === "A👋中"],
   ["SHA-256 标准值", () => hashTransform("abc", { digest: "SHA256", outputFormat: "hex", uppercase: false }) === "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"],

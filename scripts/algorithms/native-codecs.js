@@ -103,15 +103,51 @@ export function base64Transform(action, input, config) {
 
   let encoded = input.trim().replace(/\s+/g, "");
   if (config.variant === "url") encoded = encoded.replace(/-/g, "+").replace(/_/g, "/");
-  if (!/^[A-Za-z0-9+/]*={0,2}$/.test(encoded)) throw new AppError("INVALID_BASE64", "输入不是有效的 Base64 内容。");
+  if (config.decodeMode === "ignoreInvalid") encoded = encoded.replace(/[^A-Za-z0-9+/]/g, "");
+  else if (!/^[A-Za-z0-9+/]*={0,2}$/.test(encoded)) throw new AppError("INVALID_BASE64", "输入不是有效的 Base64 内容。");
   encoded += "=".repeat((4 - encoded.length % 4) % 4);
   try {
     const binary = atob(encoded);
     const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    return formatDecodedBytes(bytes, config.outputMode);
   } catch (error) {
+    if (error instanceof AppError) throw error;
     throw new AppError("INVALID_BASE64", "Base64 内容无效，或解码结果不是 UTF-8 文本。", { cause: error });
   }
+}
+
+export function hexTransform(action, input, config) {
+  if (action === "encode") return bytesToHex(new TextEncoder().encode(input));
+  const hex = input.replace(/\s+/g, "");
+  if (hex.length % 2 || /[^0-9a-fA-F]/.test(hex)) {
+    throw new AppError("INVALID_HEX", "请输入完整的十六进制字节；可以用空格或换行分隔。");
+  }
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let index = 0; index < bytes.length; index += 1) bytes[index] = parseInt(hex.slice(index * 2, index * 2 + 2), 16);
+  return formatDecodedBytes(bytes, config.outputMode);
+}
+
+function bytesToHex(bytes) {
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function formatDecodedBytes(bytes, mode = "text") {
+  if (mode === "hex") return bytesToHex(bytes);
+  if (mode === "xxd") {
+    const text = new TextDecoder("utf-8").decode(bytes);
+    const lines = [];
+    const offsetWidth = Math.max(8, (bytes.length - 1).toString(16).length);
+    for (let offset = 0; offset < bytes.length; offset += 16) {
+      const chunk = bytes.subarray(offset, offset + 16);
+      const hex = Array.from(chunk, (byte) => byte.toString(16).padStart(2, "0"));
+      const groups = Array.from({ length: 8 }, (_, index) => hex.slice(index * 2, index * 2 + 2).join(""));
+      const ascii = Array.from(chunk, (byte) => byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : ".").join("");
+      lines.push(`${offset.toString(16).padStart(offsetWidth, "0")}: ${groups.join(" ").padEnd(39)}  ${ascii}`);
+    }
+    return `文本（UTF-8）\n${text}\n\n十六进制（xxd）\n${lines.join("\n")}`;
+  }
+  try { return new TextDecoder("utf-8", { fatal: true }).decode(bytes); }
+  catch (error) { throw new AppError("INVALID_UTF8", "解码结果不是有效的 UTF-8 文本；请选择 Hex 或文本 + xxd 展示。", { cause: error }); }
 }
 
 const BASE32_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";

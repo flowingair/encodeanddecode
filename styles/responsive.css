@@ -9,6 +9,8 @@
   .mobile-picker select { width: 100%; min-height: 46px; }
 }
 @media (max-width: 620px) {
+  .header-controls { gap: 10px; }
+  .auto-control { font-size: 12px; }
   .brand small, .theme-control>span, .shortcut-hint, .section-heading>p { display: none; }
   .brand-mark { width: 38px; height: 38px; }
   .theme-control select { width: 116px; min-height: 40px; }

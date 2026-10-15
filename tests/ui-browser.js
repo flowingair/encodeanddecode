@@ -51,6 +51,35 @@ export async function runUiTests() {
     if (document.querySelector("#resultText").value !== "5L2g5aW9") throw new Error("Base64 输出不匹配");
   });
 
+  await test("Base64 宽松解码和 xxd 展示", async () => {
+    selectAction("解码"); setField("decodeMode", "ignoreInvalid"); setField("outputMode", "xxd"); setInput("/!w@B#B"); await run();
+    const result = document.querySelector("#resultText").value;
+    if (!result.includes("文本（UTF-8）") || !result.includes("00000000: ff00 41") || !result.includes("..A")) throw new Error("Base64 xxd 输出不匹配");
+  });
+
+  await test("Hex 页面解码", async () => {
+    selectAlgorithm("hex"); setField("outputMode", "xxd"); setInput("48 69 21"); await run();
+    const result = document.querySelector("#resultText").value;
+    if (!result.includes("文本（UTF-8）\nHi!") || !result.includes("00000000: 4869 21")) throw new Error("Hex xxd 输出不匹配");
+  });
+
+  await test("全局自动转换", async () => {
+    const toggle = document.querySelector("#autoConvert");
+    toggle.checked = true; toggle.dispatchEvent(new Event("change", { bubbles: true }));
+    if (localStorage.getItem("encode-decode.autoConvert") !== "true") throw new Error("自动转换设置未保存");
+    selectAlgorithm("base64"); selectAction("编码"); setInput("auto");
+    await waitFor(() => document.querySelector("#resultText").value === "YXV0bw==", "输入变化后没有自动转换");
+    setInput("next");
+    await waitFor(() => document.querySelector("#resultText").value === "bmV4dA==", "第二次输入没有自动刷新结果");
+    const padding = document.querySelector("#config-padding");
+    padding.checked = false; padding.dispatchEvent(new Event("change", { bubbles: true }));
+    await waitFor(() => document.querySelector("#resultText").value === "bmV4dA", "选项变化后没有自动刷新结果");
+    document.querySelector("#config-padding").checked = true;
+    document.querySelector("#config-padding").dispatchEvent(new Event("change", { bubbles: true }));
+    await waitFor(() => document.querySelector("#resultText").value === "bmV4dA==", "恢复填充后没有自动刷新结果");
+    toggle.checked = false; toggle.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+
   await test("URL 非法序列使用应用错误", async () => {
     selectAlgorithm("url"); selectAction("解码"); setInput("%ZZ"); await run();
     if (document.querySelector("#errorPanel").hidden) throw new Error("无效 URL 未显示错误面板");
